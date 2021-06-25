@@ -1,6 +1,6 @@
 var STCToken = artifacts.require("./STCToken.sol");
 
-contract("DappToken", (accounts) => {
+contract("STCToken", (accounts) => {
   const initialSupply = 1000000;
   it("sets the total supply upon deployment", () => {
     return STCToken.deployed()
@@ -102,6 +102,105 @@ contract("DappToken", (accounts) => {
           balance.toNumber(),
           750000,
           "balance should be reduced after transfer"
+        );
+      });
+  });
+
+  it("approves tokens for delegated transfers", () => {
+    return STCToken.deployed()
+      .then((i) => {
+        tokenInstance = i;
+        return tokenInstance.approve.call(accounts[1], 100);
+      })
+      .then((success) => {
+        assert(success, "approval must be successful");
+        return tokenInstance.approve(accounts[1], 100);
+      })
+      .then((receipt) => {
+        assert.equal(receipt.logs.length, 1, "triggers one event");
+        assert.equal(
+          receipt.logs[0].event,
+          "Approval",
+          "should be the Approval event"
+        );
+        assert.equal(
+          receipt.logs[0].args._owner,
+          accounts[0],
+          "logs the account from which allowance is being given"
+        );
+        assert.equal(
+          receipt.logs[0].args._spender,
+          accounts[1],
+          "logs the account to which allowance is being given"
+        );
+        assert.equal(
+          receipt.logs[0].args._value,
+          100,
+          "logs the allowance amount"
+        );
+
+        return tokenInstance.allowance(accounts[0], accounts[1]);
+      })
+      .then((allowance) => {
+        assert.equal(
+          allowance.toNumber(),
+          100,
+          "allowance equals the amount of allowance alloted for delegated transfer"
+        );
+      });
+  });
+
+  it("allows delegated transfer in valid scenario only", () => {
+    return STCToken.deployed()
+      .then(async (i) => {
+        tokenInstance = i;
+        fromAccount = accounts[2];
+        toAccount = accounts[3];
+        spendingAccount = accounts[4];
+
+        await tokenInstance.transfer(fromAccount, 100);
+        receipt = await tokenInstance.approve(spendingAccount, 10, {
+          from: fromAccount,
+        }); // approving delegated transfers upto 100 STC
+
+        return tokenInstance.transferFrom(fromAccount, toAccount, 10000, {
+          from: spendingAccount,
+        });
+      })
+      .then(assert.fail)
+      .catch((error) => {
+        assert(
+          error.toString().indexOf("revert") >= 0,
+          "from account should have enough balance to do delegated transfer"
+        );
+        return tokenInstance.transferFrom(fromAccount, toAccount, 9999, {
+          from: spendingAccount,
+        });
+      })
+      .then(assert.fail)
+      .catch(async (error) => {
+        assert(
+          error.toString().indexOf("revert") >= 0,
+          "cannot transfer value larger than allowance"
+        );
+
+        await tokenInstance.transferFrom(fromAccount, toAccount, 4, {
+          from: spendingAccount,
+        });
+
+        assert(
+          (await tokenInstance.balanceOf(fromAccount)).toNumber() === 96,
+          "tokens get deducted after delegated transfer from source"
+        );
+        assert(
+          (await tokenInstance.balanceOf(toAccount)).toNumber() === 4,
+          "tokens get added after delegated transfer to destination account"
+        );
+        assert(
+          (
+            await tokenInstance.allowance(fromAccount, spendingAccount)
+          ).toNumber() === 6,
+          "tokens allowance gets reduced after delegated transfer from spender account"
         );
       });
   });
