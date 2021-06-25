@@ -1,4 +1,5 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.0;
 
 contract STCToken{
     string public name="STC Token";
@@ -20,7 +21,7 @@ contract STCToken{
     );
 
     
-    constructor(uint256 _initialSupply) public{
+    constructor(uint256 _initialSupply){
         totalSupply = _initialSupply;
         balanceOf[msg.sender] = _initialSupply;
     }
