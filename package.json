@@ -1,0 +1,26 @@
+{
+  "name": "my-erc20",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "lite-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sudo-vaibhav/my-erc20.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sudo-vaibhav/my-erc20/issues"
+  },
+  "homepage": "https://github.com/sudo-vaibhav/my-erc20#readme",
+  "dependencies": {
+    "lite-server": "^2.6.1"
+  }
+}
