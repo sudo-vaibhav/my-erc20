@@ -93,6 +93,7 @@ const App = {
 
         $("#progress").html(App.tokensSold + "/" + App.tokensAvailable);
         $("#stc-balance").html(balance.toNumber());
+        $("#contract-address").html(stcTokenInstance.address);
         App.listenForEvents();
       });
   },

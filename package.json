@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/sudo-vaibhav/my-erc20#readme",
   "dependencies": {
+    "@truffle/hdwallet-provider": "^1.4.1",
     "lite-server": "^2.6.1"
   }
 }
